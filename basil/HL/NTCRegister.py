@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -46,7 +48,7 @@ class NTCRegister(RegisterLayer):
         else:
             j = arg[0]
 
-        k = 1.0 / (math.log(r_ratio / self.R_RATIO[j]) / self.B_CONST[j] + 1 / self.TEMP[j])[0]
+        k = old_div(1.0, (old_div(math.log(old_div(r_ratio, self.R_RATIO[j])), self.B_CONST[j]) + old_div(1, self.TEMP[j]))[0])
 
         if unit == "C":
             return k - 273.15

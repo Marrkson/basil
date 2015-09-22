@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import range
+from builtins import object
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -14,6 +18,7 @@ import string
 import abc
 
 from basil.HL.HardwareLayer import HardwareLayer
+from future.utils import with_metaclass
 
 
 class AdcMax1239(HardwareLayer):
@@ -116,11 +121,9 @@ class Eeprom24Lc128(HardwareLayer):
         raise NotImplementedError()
 
 
-class Fei4Dcs(object):
+class Fei4Dcs(with_metaclass(abc.ABCMeta, object)):
     '''FEI4AdapterCard interface
     '''
-
-    __metaclass__ = abc.ABCMeta
 
     # EEPROM
     HEADER_ADDR = 0
@@ -139,7 +142,7 @@ class Fei4Dcs(object):
         '''Setting default voltage
         '''
         if not channels:
-            channels = self._ch_cal.keys()
+            channels = list(self._ch_cal.keys())
         for channel in channels:
             self.set_voltage(channel, self._ch_cal[channel]['default'], unit='V')
 
@@ -152,9 +155,9 @@ class Fei4Dcs(object):
         if unit == 'raw':
             value = value
         elif unit == 'V':
-            value = int((value - dac_offset) / dac_gain)
+            value = int(old_div((value - dac_offset), dac_gain))
         elif unit == 'mV':
-            value = int((value / 1000 - dac_offset) / dac_gain)
+            value = int(old_div((old_div(value, 1000) - dac_offset), dac_gain))
         else:
             raise TypeError("Invalid unit type.")
 
@@ -166,7 +169,7 @@ class Fei4Dcs(object):
         kwargs = self._ch_map[channel]['ADCV']
         voltage_raw = self._get_adc_value(**kwargs)
 
-        voltage = (voltage_raw - self._ch_cal[channel]['ADCV']['offset']) / self._ch_cal[channel]['ADCV']['gain']
+        voltage = old_div((voltage_raw - self._ch_cal[channel]['ADCV']['offset']), self._ch_cal[channel]['ADCV']['gain'])
 
         if unit == 'raw':
             return voltage_raw
@@ -185,7 +188,7 @@ class Fei4Dcs(object):
         voltage = self.get_voltage(channel)
 
         current_raw_iq = current_raw - (self._ch_cal[channel]['ADCI']['iq_offset'] + self._ch_cal[channel]['ADCI']['iq_gain'] * voltage)  # quiescent current (IQ) compensation
-        current = (current_raw_iq - self._ch_cal[channel]['ADCI']['offset']) / self._ch_cal[channel]['ADCI']['gain']
+        current = old_div((current_raw_iq - self._ch_cal[channel]['ADCI']['offset']), self._ch_cal[channel]['ADCI']['gain'])
 
         if unit == 'raw':
             return current_raw
@@ -330,7 +333,7 @@ class FEI4AdapterCard(AdcMax1239, DacMax520, Eeprom24Lc128, Fei4Dcs):
         header = self.get_format()
         if header == self.HEADER_V1:
             data = self._read_eeprom(self.CAL_DATA_ADDR, size=calcsize(self.CAL_DATA_V1_FORMAT))
-            for idx, channel in enumerate(self._ch_cal.iterkeys()):
+            for idx, channel in enumerate(self._ch_cal.keys()):
                 ch_data = data[idx * calcsize(self.CAL_DATA_CH_V1_FORMAT):(idx + 1) * calcsize(self.CAL_DATA_CH_V1_FORMAT)]
                 values = unpack_from(self.CAL_DATA_CH_V1_FORMAT, ch_data)
                 self._ch_cal[channel]['name'] = "".join([c for c in values[0] if (c in string.printable)])  # values[0].strip()
@@ -346,7 +349,7 @@ class FEI4AdapterCard(AdcMax1239, DacMax520, Eeprom24Lc128, Fei4Dcs):
             const_data = data[-calcsize(self.CAL_DATA_CONST_V1_FORMAT):]
             values = unpack_from(self.CAL_DATA_CONST_V1_FORMAT, const_data)
             if temperature:
-                for channel in self._ch_cal.keys():
+                for channel in list(self._ch_cal.keys()):
                     self._ch_cal[channel]['VNTC']['B_NTC'] = values[0]
                     self._ch_cal[channel]['VNTC']['R1'] = values[1]
                     self._ch_cal[channel]['VNTC']['R2'] = values[2]
@@ -380,8 +383,8 @@ class FEI4AdapterCard(AdcMax1239, DacMax520, Eeprom24Lc128, Fei4Dcs):
         kwargs = self._ch_map[channel][sensor]
         temp_raw = self._get_adc_value(**kwargs)
 
-        v_adc = ((temp_raw - self._ch_cal.items()[0][1]['ADCV']['offset']) / self._ch_cal.items()[0][1]['ADCV']['gain'])  # voltage, VDDA1
-        k = self._ch_cal[channel][sensor]['R4'] / (self._ch_cal[channel][sensor]['R2'] + self._ch_cal[channel][sensor]['R4'])  # reference voltage divider
-        r_ntc = self._ch_cal[channel][sensor]['R1'] * (k - v_adc / self._ch_cal[channel][sensor]['VREF']) / (1 - k + v_adc / self._ch_cal[channel][sensor]['VREF'])  # NTC resistance
+        v_adc = (old_div((temp_raw - list(self._ch_cal.items())[0][1]['ADCV']['offset']), list(self._ch_cal.items())[0][1]['ADCV']['gain']))  # voltage, VDDA1
+        k = old_div(self._ch_cal[channel][sensor]['R4'], (self._ch_cal[channel][sensor]['R2'] + self._ch_cal[channel][sensor]['R4']))  # reference voltage divider
+        r_ntc = self._ch_cal[channel][sensor]['R1'] * (k - old_div(v_adc, self._ch_cal[channel][sensor]['VREF'])) / (1 - k + old_div(v_adc, self._ch_cal[channel][sensor]['VREF']))  # NTC resistance
 
-        return (self._ch_cal[channel][sensor]['B_NTC'] / (log(r_ntc) - log(self._ch_cal[channel][sensor]['R_NTC_25']) + self._ch_cal[channel][sensor]['B_NTC'] / self.T_KELVIN_25)) - self.T_KELVIN_0  # NTC temperature
+        return (old_div(self._ch_cal[channel][sensor]['B_NTC'], (log(r_ntc) - log(self._ch_cal[channel][sensor]['R_NTC_25']) + old_div(self._ch_cal[channel][sensor]['B_NTC'], self.T_KELVIN_25)))) - self.T_KELVIN_0  # NTC temperature

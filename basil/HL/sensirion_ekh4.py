@@ -1,3 +1,6 @@
+from __future__ import division
+from builtins import range
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -56,7 +59,7 @@ class sensirionEKH4(HardwareLayer):
         temperatures = []
         for channel_value in values:
             if channel_value:
-                temperature = float(twos_complement(channel_value, 16)) / 100.
+                temperature = old_div(float(twos_complement(channel_value, 16)), 100.)
                 if temperature >= min_val and temperature <= max_val:  # mask unlikely values
                     temperatures.append(temperature)
                 else:
@@ -70,7 +73,7 @@ class sensirionEKH4(HardwareLayer):
         humidities = []
         for channel_value in values:
             if channel_value:
-                humidity = float(channel_value) / 100.
+                humidity = old_div(float(channel_value), 100.)
                 if humidity >= min_val and humidity <= max_val:  # mask unlikely values
                     humidities.append(humidity)
                 else:
@@ -84,7 +87,7 @@ class sensirionEKH4(HardwareLayer):
         dew_points = []
         for channel_value in values:
             if channel_value:
-                dew_point = float(channel_value) / 100.
+                dew_point = old_div(float(channel_value), 100.)
                 if dew_point >= min_val and dew_point <= max_val:  # mask unlikely values
                     dew_points.append(dew_point)
                 else:

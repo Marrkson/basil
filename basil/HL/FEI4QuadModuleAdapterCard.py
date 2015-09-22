@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -155,7 +157,7 @@ class FEI4QuadModuleAdapterCard(AdcMax1239, DacDs4424, DacMax5380, Eeprom24Lc128
         header = self.get_format()
         if header == self.HEADER_V2:
             data = self._read_eeprom(self.CAL_DATA_ADDR, size=calcsize(self.CAL_DATA_V2_FORMAT))
-            for idx, channel in enumerate(self._ch_cal.iterkeys()):
+            for idx, channel in enumerate(self._ch_cal.keys()):
                 ch_data = data[idx * calcsize(self.CAL_DATA_CH_V2_FORMAT):(idx + 1) * calcsize(self.CAL_DATA_CH_V2_FORMAT)]
                 values = unpack_from(self.CAL_DATA_CH_V2_FORMAT, ch_data)
                 self._ch_cal[channel]['name'] = "".join([c for c in values[0] if (c in string.printable)])  # values[0].strip()
@@ -205,11 +207,11 @@ class FEI4QuadModuleAdapterCard(AdcMax1239, DacDs4424, DacMax5380, Eeprom24Lc128
         kwargs = self._ch_map[channel]['NTC']
         temp_raw = self._get_adc_value(**kwargs)
 
-        v_adc = ((temp_raw - self._ch_cal[channel]['ADCV']['offset']) / self._ch_cal[channel]['ADCV']['gain'])  # voltage, VDDA1
-        k = self._ch_cal[channel]['NTC']['R4'] / (self._ch_cal[channel]['NTC']['R2'] + self._ch_cal[channel]['NTC']['R4'])  # reference voltage divider
-        r_ntc = self._ch_cal[channel]['NTC']['R1'] * (k - v_adc / self._ch_cal[channel]['NTC']['VREF']) / (1 - k + v_adc / self._ch_cal[channel]['NTC']['VREF'])  # NTC resistance
+        v_adc = (old_div((temp_raw - self._ch_cal[channel]['ADCV']['offset']), self._ch_cal[channel]['ADCV']['gain']))  # voltage, VDDA1
+        k = old_div(self._ch_cal[channel]['NTC']['R4'], (self._ch_cal[channel]['NTC']['R2'] + self._ch_cal[channel]['NTC']['R4']))  # reference voltage divider
+        r_ntc = self._ch_cal[channel]['NTC']['R1'] * (k - old_div(v_adc, self._ch_cal[channel]['NTC']['VREF'])) / (1 - k + old_div(v_adc, self._ch_cal[channel]['NTC']['VREF']))  # NTC resistance
 
-        return (self._ch_cal[channel]['NTC']['B_NTC'] * self.T_KELVIN_25) / (self._ch_cal[channel]['NTC']['B_NTC'] + self.T_KELVIN_25 * log(r_ntc / self._ch_cal[channel]['NTC']['R_NTC_25'])) - self.T_KELVIN_0  # NTC temperature
+        return old_div((self._ch_cal[channel]['NTC']['B_NTC'] * self.T_KELVIN_25), (self._ch_cal[channel]['NTC']['B_NTC'] + self.T_KELVIN_25 * log(old_div(r_ntc, self._ch_cal[channel]['NTC']['R_NTC_25'])))) - self.T_KELVIN_0  # NTC temperature
 
     def set_current_limit(self, channel, value, unit='A'):
         '''Setting current limit
@@ -222,9 +224,9 @@ class FEI4QuadModuleAdapterCard(AdcMax1239, DacDs4424, DacMax5380, Eeprom24Lc128
         if unit == 'raw':
             value = value
         elif unit == 'A':
-            value = int((value - dac_offset) / dac_gain)
+            value = int(old_div((value - dac_offset), dac_gain))
         elif unit == 'mA':
-            value = int((value / 1000 - dac_offset) / dac_gain)
+            value = int(old_div((old_div(value, 1000) - dac_offset), dac_gain))
         else:
             raise TypeError("Invalid unit type.")
 

@@ -1,3 +1,7 @@
+from __future__ import division
+from builtins import str
+from builtins import range
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -712,7 +716,7 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
         header = self.get_format()
         if header == self.HEADER_GPAC:
             data = self._read_eeprom(self.CAL_DATA_ADDR, size=calcsize(self.CAL_DATA_GPAC_FORMAT))
-            for idx, channel in enumerate(self._ch_cal.iterkeys()):
+            for idx, channel in enumerate(self._ch_cal.keys()):
                 ch_data = data[idx * calcsize(self.CAL_DATA_CH_GPAC_FORMAT):(idx + 1) * calcsize(self.CAL_DATA_CH_GPAC_FORMAT)]
                 values = unpack_from(self.CAL_DATA_CH_GPAC_FORMAT, ch_data)
                 self._ch_cal[channel]['name'] = "".join([c for c in values[0] if (c in string.printable)])  # values[0].strip()
@@ -746,9 +750,9 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
         if unit == 'raw':
             value = value
         elif unit == 'V':
-            value = int((value * 1000 - dac_offset) / dac_gain)
+            value = int(old_div((value * 1000 - dac_offset), dac_gain))
         elif unit == 'mV':
-            value = int((value - dac_offset) / dac_gain)
+            value = int(old_div((value - dac_offset), dac_gain))
         else:
             raise TypeError("Invalid unit type.")
 
@@ -764,12 +768,12 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
         dac_offset = self._ch_cal[channel]['ADCV']['offset']
         dac_gain = self._ch_cal[channel]['ADCV']['gain']
 
-        voltage = ((raw - dac_offset) / dac_gain)
+        voltage = (old_div((raw - dac_offset), dac_gain))
 
         if unit == 'raw':
             return raw
         elif unit == 'V':
-            return voltage / 1000
+            return old_div(voltage, 1000)
         elif unit == 'mV':
             return voltage
         else:
@@ -784,12 +788,12 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
         dac_gain = self._ch_cal[channel]['ADCI']['gain']
 
         if 'PWR' in channel:
-            current = ((raw - dac_offset) / dac_gain)
+            current = (old_div((raw - dac_offset), dac_gain))
 
             if unit == 'raw':
                 return raw
             elif unit == 'A':
-                return current / 1000
+                return old_div(current, 1000)
             elif unit == 'mA':
                 return current
             elif unit == 'uA':
@@ -798,14 +802,14 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
                 raise TypeError("Invalid unit type.")
         else:
             voltage = values[self._ch_map[channel]['ADCV']['adc_ch']]
-            current = (((raw - voltage) - dac_offset) / dac_gain)
+            current = (old_div(((raw - voltage) - dac_offset), dac_gain))
 
             if unit == 'raw':
                 return raw
             elif unit == 'A':
-                return current / 1000000
+                return old_div(current, 1000000)
             elif unit == 'mA':
-                return current / 1000
+                return old_div(current, 1000)
             elif unit == 'uA':
                 return current
             else:
@@ -856,11 +860,11 @@ class GPAC(I2cAnalogChannel, I2cEeprom):
         if unit == 'raw':
             value = value
         elif unit == 'A':
-            value = int((-value * 1000000 - dac_offset) / dac_gain)  # fix sign of output
+            value = int(old_div((-value * 1000000 - dac_offset), dac_gain))  # fix sign of output
         elif unit == 'mA':
-            value = int((-value * 1000 - dac_offset) / dac_gain)  # fix sign of output
+            value = int(old_div((-value * 1000 - dac_offset), dac_gain))  # fix sign of output
         elif unit == 'uA':
-            value = int((-value - dac_offset) / dac_gain)  # fix sign of output
+            value = int(old_div((-value - dac_offset), dac_gain))  # fix sign of output
         else:
             raise TypeError("Invalid unit type.")
 

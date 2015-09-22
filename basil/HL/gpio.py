@@ -1,3 +1,5 @@
+from __future__ import division
+from past.utils import old_div
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -18,10 +20,10 @@ class gpio(RegisterHardwareLayer):
 
     def __init__(self, intf, conf):
         self._size = 8
-        if 'size' in conf.keys():
+        if 'size' in list(conf.keys()):
             self._size = conf['size']
 
-        io_bytes = ((self._size - 1) / 8) + 1
+        io_bytes = (old_div((self._size - 1), 8)) + 1
 
         self._registers['INPUT'] = {'descr': {'addr': 1, 'size': io_bytes, 'properties': ['ro', 'byte_array']}}
         self._registers['OUTPUT'] = {'descr': {'addr': 2 + io_bytes - 1, 'size': io_bytes, 'properties': ['byte_array']}}

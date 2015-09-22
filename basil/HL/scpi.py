@@ -1,3 +1,4 @@
+from builtins import str
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
