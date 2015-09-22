@@ -1,4 +1,5 @@
 from builtins import str
+from past.builtins import basestring
 from builtins import object
 from future.utils import iteritems
 #
@@ -43,7 +44,7 @@ class Base(object):
         conf_dict = {}
         if not conf:
             pass
-        elif isinstance(conf, str):  # parse the first YAML document in a stream
+        elif isinstance(conf, basestring):  # parse the first YAML document in a stream
             if os.path.isfile(conf):
                 with open(conf, 'r') as f:
                     conf_dict.update(safe_load(f))
