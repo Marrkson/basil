@@ -42,3 +42,6 @@ examples/lx9/device/src/SiTCP
 .DS_Store
 tests/qverilog.log
 tests/work
+
+# backup files
+*.bak

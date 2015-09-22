@@ -1,3 +1,6 @@
+from builtins import str
+from past.builtins import basestring
+from builtins import object
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -105,28 +108,28 @@ class Dut(Base):
             except NotImplementedError:
                 pass
 
-        for item in self._transfer_layer.itervalues():
+        for item in self._transfer_layer.values():
             update_init(item)
             catch_exception_on_init(item)
-        for item in self._hardware_layer.itervalues():
+        for item in self._hardware_layer.values():
             update_init(item)
             catch_exception_on_init(item)
-        for item in self._registers.itervalues():
+        for item in self._registers.values():
             update_init(item)
             catch_exception_on_init(item)
 
     def close(self):
-        for item in self._transfer_layer.itervalues():
+        for item in self._transfer_layer.values():
             item.close()
-        for item in self._hardware_layer.itervalues():
+        for item in self._hardware_layer.values():
             item.close()
-        for item in self._registers.itervalues():
+        for item in self._registers.values():
             item.close()
 
     def set_configuration(self, conf):
         conf = self._open_conf(conf)
         if conf:
-            for item, item_conf in conf.iteritems():
+            for item, item_conf in conf.items():
                 if item != 'conf_path':
                     try:
                         self[item].set_configuration(item_conf)
@@ -135,17 +138,17 @@ class Dut(Base):
 
     def get_configuration(self):
         conf = {}
-        for key, value in self._registers.iteritems():
+        for key, value in self._registers.items():
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
                 conf[key] = {}
-        for key, value in self._hardware_layer.iteritems():
+        for key, value in self._hardware_layer.items():
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
                 conf[key] = {}
-        for key, value in self._transfer_layer.iteritems():
+        for key, value in self._transfer_layer.items():
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
@@ -292,11 +295,11 @@ class Dut(Base):
         return modules
 
     def __iter__(self):
-        for item in self._registers.itervalues():
+        for item in self._registers.values():
             yield item
-        for item in self._hardware_layer.itervalues():
+        for item in self._hardware_layer.values():
             yield item
-        for item in self._transfer_layer.itervalues():
+        for item in self._transfer_layer.values():
             yield item
 
     # TODO:

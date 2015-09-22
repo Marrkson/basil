@@ -1,3 +1,5 @@
+from builtins import zip
+from builtins import range
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -73,20 +75,20 @@ class TestSimSpi(unittest.TestCase):
         self.chip['gpio'].reset()
         self.assertEqual(size, 16 * 8)
 
-        self.chip['spi'].set_data(range(16))
+        self.chip['spi'].set_data(list(range(16)))
         ret = self.chip['spi'].get_data(size=16, addr=0)  # to read back what was written
-        self.assertEqual(ret.tolist(), range(16))
+        self.assertEqual(ret.tolist(), list(range(16)))
 
-        self.chip['spi'].set_data(range(16))
+        self.chip['spi'].set_data(list(range(16)))
         ret = self.chip['spi'].get_data(addr=0)  # to read back what was written
-        self.assertEqual(ret.tolist(), range(16))
+        self.assertEqual(ret.tolist(), list(range(16)))
 
         self.chip['spi'].start()
         while(not self.chip['spi'].is_done()):
             pass
 
         ret = self.chip['spi'].get_data()  # read back what was received (looped)
-        self.assertEqual(ret.tolist(), range(16))
+        self.assertEqual(ret.tolist(), list(range(16)))
         
         # ext_start
         self.chip['spi'].set_en(1)
@@ -104,7 +106,7 @@ class TestSimSpi(unittest.TestCase):
             pass
             
         ret = self.chip['spi'].get_data()  # read back what was received (looped)
-        self.assertEqual(ret.tolist(), range(16))
+        self.assertEqual(ret.tolist(), list(range(16)))
         
         # spi_rx
         ret = self.chip['spi_rx'].get_en()
@@ -126,7 +128,7 @@ class TestSimSpi(unittest.TestCase):
         data0 = ret.astype(np.uint8)
         data1 = np.right_shift(ret, 8).astype(np.uint8)
         data = np.reshape(np.vstack((data1, data0)), -1, order='F')
-        self.assertEqual(data.tolist(), range(16))
+        self.assertEqual(data.tolist(), list(range(16)))
     
     def test_dut_iter(self):
         
