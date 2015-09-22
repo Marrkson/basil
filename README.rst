@@ -4,7 +4,7 @@ Basil
 
 |travis-status|  |rtd-status|  |landscape-status|  |Gitter-status|
 
-.. |travis-status| image:: https://travis-ci.org/SiLab-Bonn/basil.svg?branch=developemnt
+.. |travis-status| image:: https://travis-ci.org/SiLab-Bonn/basil.svg?branch=py3k
     :target: https://travis-ci.org/SiLab-Bonn/basil
     :alt: Build status
 
@@ -12,14 +12,16 @@ Basil
     :target: http://basil.rtfd.org
     :alt: Documentation
  
-.. |landscape-status| image:: https://landscape.io/github/SiLab-Bonn/basil/development/landscape.svg?style=flat
-   :target: https://landscape.io/github/SiLab-Bonn/basil/development
+.. |landscape-status| image:: https://landscape.io/github/SiLab-Bonn/basil/py3k/landscape.svg?style=flat
+   :target: https://landscape.io/github/SiLab-Bonn/basil/py3k
    :alt: Code Health
    
 .. |Gitter-status| image:: https://badges.gitter.im/Join%20Chat.svg
    :target: https://gitter.im/SiLab-Bonn/basil?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge
    :alt: Gitter
   
+Python 3 support is not working so far! Use Python 2!
+
 Basil is a modular data acquisition system and system testing framework in Python.
 
 It also provides generic FPGA firmware modules for different hardware platforms and drivers for wide range of lab appliances.
@@ -32,9 +34,11 @@ Documentation can be found under: http://basil.rtfd.org
 Installation
 =============
 
+Python 3 support is not working so far! Use Python 2!
+
 .. code-block:: bash
 
-    pip install git+https://github.com/SiLab-Bonn/basil.git@development
+    pip install git+https://github.com/SiLab-Bonn/basil.git@py3k
 
 Support
 =======
