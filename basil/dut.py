@@ -1,6 +1,6 @@
 from builtins import str
-from past.builtins import basestring
 from builtins import object
+from future.utils import iteritems
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -43,7 +43,7 @@ class Base(object):
         conf_dict = {}
         if not conf:
             pass
-        elif isinstance(conf, basestring):  # parse the first YAML document in a stream
+        elif isinstance(conf, str):  # parse the first YAML document in a stream
             if os.path.isfile(conf):
                 with open(conf, 'r') as f:
                     conf_dict.update(safe_load(f))
@@ -53,7 +53,7 @@ class Base(object):
                     conf_dict.update(safe_load(conf))
                 except ValueError:  # invalid path/filename
                     raise IOError("File not found: %s" % conf)
-        elif isinstance(conf, file):  # parse the first YAML document in a stream
+        elif hasattr(conf, 'read'):  # parse the first YAML document in a stream, check if file like: http://stackoverflow.com/questions/1661262/check-if-object-is-file-like-in-python
             conf_dict.update(safe_load(conf))
             conf_dict.update(conf_path=conf.name)
         else:  # conf is already a dict
@@ -129,7 +129,7 @@ class Dut(Base):
     def set_configuration(self, conf):
         conf = self._open_conf(conf)
         if conf:
-            for item, item_conf in conf.items():
+            for (item, item_conf) in iteritems(conf):
                 if item != 'conf_path':
                     try:
                         self[item].set_configuration(item_conf)
@@ -138,17 +138,17 @@ class Dut(Base):
 
     def get_configuration(self):
         conf = {}
-        for key, value in self._registers.items():
+        for (key, value) in iteritems(self._registers):
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
                 conf[key] = {}
-        for key, value in self._hardware_layer.items():
+        for (key, value) in iteritems(self._hardware_layer):
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
                 conf[key] = {}
-        for key, value in self._transfer_layer.items():
+        for (key, value) in iteritems(self._transfer_layer):
             try:
                 conf[key] = value.get_configuration()
             except NotImplementedError:
@@ -246,7 +246,7 @@ class Dut(Base):
                 try:
                     mod = import_module(mod_name)
                 except ImportError:
-                    raise exc[0], exc[1], exc[2]  # raise previous error
+                    raise (exc[0], exc[1], exc[2])  # raise previous error, TODO: py2/3 check
                 else:
                     importname = mod_name
             else:  # finally raise exception
