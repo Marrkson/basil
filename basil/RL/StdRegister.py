@@ -1,3 +1,4 @@
+import sys
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -9,6 +10,11 @@ from basil.RL.RegisterLayer import RegisterLayer
 from basil.utils.BitLogic import BitLogic
 from basil.utils import utils
 
+# Python 2/3 compatbility (http://python3porting.com/differences.html)
+if sys.version_info < (3,):
+    integer_types = (int, long,)
+else:
+    integer_types = (int,)
 
 class StdRegister(RegisterLayer):
 
@@ -60,7 +66,7 @@ class StdRegister(RegisterLayer):
                 for i, bit in enumerate(self._get_filed_config(key)['bit_order']):
                     new_val[len(self._fields[key]) - 1 - i] = self._fields[key][bit]
                 self._fields[key] = new_val
-        elif isinstance(key, (int, long)):
+        elif isinstance(key, integer_types):
             reg = self._construct_reg()
             reg[key] = value
             self._deconstruct_reg(reg)

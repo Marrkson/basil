@@ -1,5 +1,6 @@
 from builtins import str
 from future.utils import iteritems
+import sys
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -15,6 +16,11 @@ import array
 from basil.utils.BitLogic import BitLogic
 from basil.HL.HardwareLayer import HardwareLayer
 
+# Python 2/3 compatbility (http://python3porting.com/differences.html)
+if sys.version_info < (3,):
+    integer_types = (int, long,)
+else:
+    integer_types = (int,)
 
 # description attributes
 read_only = ['read_only', 'read-only', 'readonly', 'ro']
