@@ -1,3 +1,5 @@
+from builtins import str
+from future.utils import iteritems
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -43,7 +45,7 @@ class RegisterHardwareLayer(HardwareLayer, dict):
         # require interface and base address
         self._intf = intf
         self._base_addr = conf['base_addr']
-        for reg in self._registers.iterkeys():
+        for reg in self._registers:
             self.add_property(reg)
             dict.__setitem__(self, reg, None)  # set values, but not writing to the interface
 
@@ -57,7 +59,7 @@ class RegisterHardwareLayer(HardwareLayer, dict):
         logging.info("Initializing %s (firmware version: %s), module %s" % (self.name, version if 'VERSION' in self._registers else 'n/a', self.__class__.__module__))
         if self._require_version and not eval(version + self._require_version):
             raise Exception("FPGA module %s does not satisfy version requirements (read: %s, require: %s)" % (self.__class__.__module__, version, self._require_version.strip()))
-        for reg, value in self._registers.iteritems():
+        for (reg, value) in iteritems(self._registers):
             if reg in self._init:
                 self[reg] = self._init[reg]
             elif 'default' in value and not ('properties' in value['descr'] and [i for i in read_only if i in value['descr']['properties']]):
@@ -153,12 +155,12 @@ class RegisterHardwareLayer(HardwareLayer, dict):
 
     def set_configuration(self, conf):
         if conf:
-            for reg, value in conf.iteritems():
+            for (reg, value) in iteritems(conf):
                 self[reg] = value
 
     def get_configuration(self):
         conf = {}
-        for reg in self._registers.iterkeys():
+        for reg in self._registers:
             descr = self._registers[reg]['descr']
             if not ('properties' in descr and [i for i in write_only if i in descr['properties']]) and not ('properties' in descr and [i for i in read_only if i in descr['properties']]):
                 conf[reg] = self[reg]
@@ -174,21 +176,21 @@ class RegisterHardwareLayer(HardwareLayer, dict):
         def getter(self):
             try:
                 return self._get(attribute)
-            except Exception, e:
+            except Exception as e:
                 logging.error(e)
                 return None
 
         def setter(self, value):
             try:
                 return self._set(attribute, value)
-            except Exception, e:
+            except Exception as e:
                 logging.error(e)
                 return None
         # construct property attribute and add it to the class
         setattr(self.__class__, attribute, property(fget=getter, fset=setter, doc=attribute + ' register'))
 
     def set_default(self):
-        for reg, value in self._registers.iteritems():
+        for (reg, value) in iteritems(self._registers):
             if 'default' in value and not ('properties' in value['descr'] and [i for i in read_only if i in self._registers[reg]['descr']['properties']]):
                 self._set(reg, value['default'])
 
@@ -235,7 +237,7 @@ class RegisterHardwareLayer(HardwareLayer, dict):
             except ValueError:
                 raise
             else:
-                dict.__setitem__(self, reg, value if isinstance(value, (int, long)) else int(value, base=2))
+                dict.__setitem__(self, reg, value if isinstance(value, integer_types) else int(value, base=2))
 
     def __getitem__(self, name):
         return self._get(name)
