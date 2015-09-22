@@ -24,6 +24,8 @@ install:
   - pip install bitarray
   - pip install pyyaml
   - pip install pyvisa pyvisa-sim
+  - pip install modernize
+  - pip install future
   
   - wget -O cocotb-master.zip https://github.com/potentialventures/cocotb/archive/master.zip 
   - unzip cocotb-master.zip
