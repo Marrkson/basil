@@ -39,7 +39,7 @@ class TestBitLogic(unittest.TestCase):
         self.assertRaises(ValueError, BitLogic.from_value, 8, size=3, fmt='Q')
 
     def test_from_value_with_funny_size(self):
-        self.assertRaises(ValueError, BitLogic.from_value, 8, size='123', fmt='Q')
+        self.assertRaises(TypeError, BitLogic.from_value, 8, size='123', fmt='Q')
 
     def test_from_value_with_size_smaller(self):
         bl = BitLogic.from_value(259, size=9, fmt='Q')
