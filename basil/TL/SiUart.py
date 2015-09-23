@@ -28,31 +28,10 @@ class SiUart (TransferLayer):
         super(SiUart, self).__init__(conf)
 
     def init(self, **kwargs):
-        self._init.setdefault('board_id', None)
-        self._init.setdefault('avoid_download', False)
-        if self._init['board_id'] and int(self._init['board_id']) >= 0:
-            self._ser = serial.Serial()
-            if 'port' in self._init.keys():
-                self._ser.setPort(self._init['port'])
-            if 'baudrate' in self._init.keys():   
-                self._ser.setBaudrate(self._init['baudrate'])
-            if 'parity' in self._init.keys() and self._init["parity"] == 0:
-                self._ser.setParity(serial.PARITY_NONE)
-            if 'stopbits' in self._init.keys():          
-                self._ser.setStopbits(self._init['stopbits'])
-            if 'bytesize' in self._init.keys():          
-                self._ser.setByteSize(self._init['bytesize'])
-            if 'timeout' in self._init.keys():          
-                self._ser.setTimeout(self._init['timeout'])
-            
-            self._ser.open()
-            if not self._ser.isOpen():
-                raise IOError("Port at %s not open"%self._ser.port)
-        else:
-            logging.info('Found board')
-    
+        self._ser = serial.Serial(**self._init)
+        if not self._ser.isOpen():
+            raise IOError("Port at %s not open"%self._ser.port)
   
-    
     def __del__(self):
         self._ser.close()
        
