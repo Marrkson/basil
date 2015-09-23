@@ -1,3 +1,4 @@
+from builtins import filter
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -39,12 +40,12 @@ class SiUsb (SiTransferLayer):
             if not devices:
                 raise IOError('Can\'t find USB board. Connect or reset USB board!')
             else:
-                logging.info('Found USB board(s): {}'.format(', '.join(('%s with ID %s (FW %s)' % (device.board_name, filter(type(device.board_id).isdigit, device.board_id), filter(type(device.fw_version).isdigit, device.fw_version))) for device in devices)))
+                logging.info('Found USB board(s): {}'.format(', '.join(('%s with ID %s (FW %s)' % (device.board_name, list(filter(type(device.board_id).isdigit, device.board_id)), list(filter(type(device.fw_version).isdigit, device.fw_version)))) for device in devices)))
                 if len(devices) > 1:
                     raise ValueError('Please specify ID of USB board')
                 self._sidev = devices[0]
-        if 'bit_file' in self._init.keys():
-            if 'avoid_download' in self._init.keys() and self._init['avoid_download'] is True and self._sidev.XilinxAlreadyLoaded():
+        if 'bit_file' in self._init:
+            if 'avoid_download' in self._init and self._init['avoid_download'] is True and self._sidev.XilinxAlreadyLoaded():
                 logging.info("FPGA already programmed, skipping download")
             else:
                 if os.path.exists(self._init['bit_file']):
