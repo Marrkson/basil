@@ -25,19 +25,11 @@ class SiSim (SiTransferLayer):
     def init(self):
         self._sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-        host = 'localhost'
-        if 'host' in self._init.keys():
-            host = self._init['host']
-
-        port = 12345
-        if 'port' in self._init.keys():
-            port = self._init['port']
+        host = self._init.pop('host', 'localhost')
+        port = self._init.pop('port', 12345)
+        try_cnt = self._init.pop('timeout', 60)
 
         # try few times for simulator to setup
-        try_cnt = 60
-        if 'timeout' in self._init.keys():
-            try_cnt = self._init['timeout']
-
         while(self._sock.connect_ex((host, port)) != 0):
             logging.debug("Trying to connect to simulator.")
             time.sleep(1)
