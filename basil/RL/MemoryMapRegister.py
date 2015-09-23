@@ -1,3 +1,4 @@
+from builtins import map
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
