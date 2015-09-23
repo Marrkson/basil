@@ -1,3 +1,4 @@
+from builtins import range
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved
@@ -84,7 +85,7 @@ class SiTcp (SiTransferLayer):
         if addr < self.BASE_DATA_TCP:
             self._udp_lock.acquire()
             buff = array('B', data)
-            chunks = lambda l, n: [l[x: x + n] for x in xrange(0, len(l), n)]
+            chunks = lambda l, n: [l[x: x + n] for x in range(0, len(l), n)]
             new_addr = addr
             for req in chunks(buff, self.RBCP_MAX_SIZE):
                 self._write_single(new_addr, req)

@@ -1,3 +1,4 @@
+from builtins import bytes
 #
 # ------------------------------------------------------------
 # Copyright (c) All rights reserved

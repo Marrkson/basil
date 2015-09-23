@@ -8,14 +8,14 @@
 import abc
 
 from basil.dut import Base
+from future.utils import with_metaclass
 
 
-class TransferLayer(Base):
+class TransferLayer(with_metaclass(abc.ABCMeta, Base)):
 
     '''Transfer Layer implements minimum API needed access to hardware.
     On error ``raise IOError``.
     '''
-    __metaclass__ = abc.ABCMeta
 
     def __init__(self, conf):
         super(TransferLayer, self).__init__(conf)
